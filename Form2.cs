@@ -82,11 +82,40 @@ namespace Kick_Chat
                     {
                         webView21.Source = new Uri(chatUrl);
                         webView21.ZoomFactor = zoomPct / 100.0;
+
+                        if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.FontFamily) &&
+                            Properties.Settings.Default.FontFamily != "Basic")
+                        {
+                            webView21.NavigationCompleted += async (s, ev) =>
+                            {
+                                if (webView21.IsDisposed) return;
+
+                                string css = $@"
+body,
+#chat-container,
+.chat_line,
+.user_info,
+.username,
+.message_content {{
+    font-family: '{Properties.Settings.Default.FontFamily}', 'Segoe UI', Arial, sans-serif !important;
+    font-weight: 400 !important;
+}}";
+
+                                string js = $@"
+let style = document.createElement('style');
+style.type = 'text/css';
+style.innerHTML = `{css}`;
+document.head.appendChild(style);";
+
+                                await webView21.ExecuteScriptAsync(js);
+                            };
+                        }
                     }
                 }
             }
             catch { }
         }
+
 
         private void Form2_MoveResize(object sender, EventArgs e)
         {
