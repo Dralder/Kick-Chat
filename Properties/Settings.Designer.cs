@@ -205,18 +205,6 @@ namespace Kick_Chat.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string TwitchUser {
-            get {
-                return ((string)(this["TwitchUser"]));
-            }
-            set {
-                this["TwitchUser"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Basic")]
         public string FontFamily {
             get {

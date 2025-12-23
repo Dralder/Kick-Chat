@@ -40,8 +40,6 @@
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
-            label4 = new Label();
-            txtTwitchUser = new TextBox();
             label5 = new Label();
             nudFade = new NumericUpDown();
             cmbStroke = new ComboBox();
@@ -195,29 +193,6 @@
             label3.TabIndex = 10;
             label3.Text = "By Dralder - Late 2025  v";
             // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.BackColor = Color.Transparent;
-            label4.Font = new Font("Lucida Sans Unicode", 12F, FontStyle.Bold);
-            label4.ForeColor = Color.WhiteSmoke;
-            label4.Location = new Point(216, 8);
-            label4.Name = "label4";
-            label4.Size = new Size(167, 20);
-            label4.TabIndex = 12;
-            label4.Text = "Twitch Username:";
-            // 
-            // txtTwitchUser
-            // 
-            txtTwitchUser.BackColor = Color.FromArgb(50, 50, 50);
-            txtTwitchUser.BorderStyle = BorderStyle.None;
-            txtTwitchUser.Font = new Font("Nirmala UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            txtTwitchUser.ForeColor = Color.WhiteSmoke;
-            txtTwitchUser.Location = new Point(216, 32);
-            txtTwitchUser.Name = "txtTwitchUser";
-            txtTwitchUser.Size = new Size(170, 22);
-            txtTwitchUser.TabIndex = 11;
-            // 
             // label5
             // 
             label5.AutoSize = true;
@@ -332,8 +307,6 @@
             Controls.Add(cmbStroke);
             Controls.Add(nudFade);
             Controls.Add(label5);
-            Controls.Add(label4);
-            Controls.Add(txtTwitchUser);
             Controls.Add(label3);
             Controls.Add(label2);
             Controls.Add(label1);
@@ -368,8 +341,6 @@
         private Label label1;
         private Label label2;
         private Label label3;
-        private Label label4;
-        private TextBox txtTwitchUser;
         private Label label5;
         private NumericUpDown nudFade;
         private ComboBox cmbStroke;

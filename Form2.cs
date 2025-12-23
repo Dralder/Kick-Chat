@@ -116,7 +116,6 @@ document.head.appendChild(style);";
             catch { }
         }
 
-
         private void Form2_MoveResize(object sender, EventArgs e)
         {
             if (showBorder && isLoaded)

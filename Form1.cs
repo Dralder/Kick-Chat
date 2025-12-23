@@ -31,7 +31,6 @@ namespace Kick_Chat
             cmbFontSize.SelectedItem = Properties.Settings.Default.FontSize;
             cmbStroke.SelectedItem = Properties.Settings.Default.Stroke;
             nudFade.Value = Properties.Settings.Default.Fade;
-            txtTwitchUser.Text = Properties.Settings.Default.TwitchUser;
             cmbFontFamily.SelectedItem = Properties.Settings.Default.FontFamily;
 
             string selectedFont = Properties.Settings.Default.FontFamily ?? "Basic";
@@ -44,7 +43,7 @@ namespace Kick_Chat
                 label7.Font = new Font(selectedFont, label7.Font.Size, label7.Font.Style);
             }
 
-            if (!string.IsNullOrWhiteSpace(txtUsername.Text) || !string.IsNullOrWhiteSpace(txtTwitchUser.Text))
+            if (!string.IsNullOrWhiteSpace(txtUsername.Text))
             {
                 OpenForm2();
             }
@@ -62,11 +61,10 @@ namespace Kick_Chat
             Properties.Settings.Default.FontSize = cmbFontSize.SelectedItem?.ToString() ?? "Medium";
             Properties.Settings.Default.Stroke = cmbStroke.SelectedItem?.ToString() ?? "Off";
             Properties.Settings.Default.Fade = (int)nudFade.Value;
-            Properties.Settings.Default.TwitchUser = txtTwitchUser.Text;
             Properties.Settings.Default.FontFamily = cmbFontFamily.SelectedItem?.ToString() ?? "Basic";
             Properties.Settings.Default.Save();
 
-            if (!string.IsNullOrWhiteSpace(txtUsername.Text) || !string.IsNullOrWhiteSpace(txtTwitchUser.Text))
+            if (!string.IsNullOrWhiteSpace(txtUsername.Text))
             {
                 OpenForm2();
             }
@@ -85,7 +83,7 @@ namespace Kick_Chat
                 chatForm.Dispose();
             }
 
-            string url = "https://beta.kick-chat.corard.tv/v1/chat?";
+            string url = "https://kick-chat.corard.tv/v1/chat?";
 
             if (!string.IsNullOrWhiteSpace(txtUsername.Text))
                 url += "user=" + txtUsername.Text;
@@ -101,14 +99,9 @@ namespace Kick_Chat
                    "&commands=" + chkCommands.Checked.ToString().ToLower() +
                    "&bots=" + chkBots.Checked.ToString().ToLower();
 
-            if (!string.IsNullOrWhiteSpace(txtTwitchUser.Text))
-                url += "&twitchuser=" + txtTwitchUser.Text;
-
             chatForm = new Form2(url, chkBorder.Checked, (int)nudZoom.Value);
             chatForm.Show();
         }
-
-
 
         private void cmbFontFamily_SelectedIndexChanged(object sender, EventArgs e)
         {

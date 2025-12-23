@@ -47,9 +47,6 @@
     <Setting Name="Fade" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="TwitchUser" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="FontFamily" Type="System.String" Scope="User">
       <Value Profile="(Default)">Basic</Value>
     </Setting>
