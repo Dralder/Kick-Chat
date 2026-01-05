@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>img\kick-app-icon-hd.ico</ApplicationIcon>
-    <AssemblyVersion>1.1.1</AssemblyVersion>
+    <AssemblyVersion>1.1.2</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
