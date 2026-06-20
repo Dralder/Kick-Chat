@@ -1035,8 +1035,8 @@
             ClientSize = new Size(826, 284);
             Controls.Add(label3);
             Controls.Add(btnpanel);
-            Controls.Add(panel1);
             Controls.Add(panel2);
+            Controls.Add(panel1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;

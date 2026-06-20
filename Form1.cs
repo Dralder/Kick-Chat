@@ -763,16 +763,6 @@ namespace Kick_Chat
             pictureBox1.Image = null;
             AttachedFile = null;
         }
-        protected override void OnHandleDestroyed(EventArgs e)
-        {
-            SaveAll();
-            base.OnHandleDestroyed(e);
-        }
-        protected override void OnFormClosed(FormClosedEventArgs e)
-        {
-            SaveAll();
-            base.OnFormClosed(e);
-        }
         private void SaveAll()
         {
             Properties.Settings.Default.Username = txtUsername.Text;

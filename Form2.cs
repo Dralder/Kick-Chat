@@ -139,8 +139,20 @@ namespace Kick_Chat
 
             if (firstLoad)
             {
-                Location = new Point(Properties.Settings.Default.Form2X, Properties.Settings.Default.Form2Y);
-                Size = new Size(Properties.Settings.Default.Form2Width, Properties.Settings.Default.Form2Height);
+                this.StartPosition = FormStartPosition.Manual;
+                if (!string.IsNullOrEmpty(Properties.Settings.Default.ChatBoxBounds))
+                {
+                    try
+                    {
+                        string[] parts = Properties.Settings.Default.ChatBoxBounds.Split(',');
+                        if (parts.Length == 4)
+                        {
+                            Location = new Point(int.Parse(parts[0]), int.Parse(parts[1]));
+                            Size = new Size(int.Parse(parts[2]), int.Parse(parts[3]));
+                        }
+                    }
+                    catch { }
+                }
                 firstLoad = false;
             }
 
@@ -198,7 +210,6 @@ namespace Kick_Chat
                     overflow: hidden !important; 
                 }}
                 
-                /* Target only the elements that contain actual user text */
                 .message_content, 
                 .username, 
                 .chat_line span:not([class*='badge']):not([class*='icon']) {{ 
@@ -206,7 +217,6 @@ namespace Kick_Chat
                     -webkit-font-smoothing: antialiased;
                 }}
 
-                /* Ensure badges keep their original size and layout */
                 .badge-container, .chat-badge, [class*='badge'] {{
                     display: inline-block !important;
                     vertical-align: middle !important;
@@ -226,10 +236,7 @@ namespace Kick_Chat
         {
             if (showBorder && isLoaded)
             {
-                Properties.Settings.Default.Form2X = Location.X;
-                Properties.Settings.Default.Form2Y = Location.Y;
-                Properties.Settings.Default.Form2Width = Size.Width;
-                Properties.Settings.Default.Form2Height = Size.Height;
+                Properties.Settings.Default.ChatBoxBounds = $"{this.Location.X},{this.Location.Y},{this.Width},{this.Height}";
                 Properties.Settings.Default.Save();
                 SetWindowPos(this.Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
             }
@@ -238,10 +245,7 @@ namespace Kick_Chat
         {
             connectionCheckTimer?.Stop();
             NetworkChange.NetworkAddressChanged -= OnNetworkAddressChanged;
-            Properties.Settings.Default.Form2X = Location.X;
-            Properties.Settings.Default.Form2Y = Location.Y;
-            Properties.Settings.Default.Form2Width = Size.Width;
-            Properties.Settings.Default.Form2Height = Size.Height;
+            Properties.Settings.Default.ChatBoxBounds = $"{this.Location.X},{this.Location.Y},{this.Width},{this.Height}";
             Properties.Settings.Default.Save();
         }
 
