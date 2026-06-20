@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Net.NetworkInformation;
-using System.Net;
 
 namespace Kick_Chat
 {
@@ -35,12 +34,22 @@ namespace Kick_Chat
         private const uint SWP_NOSIZE = 0x0001;
         private const uint SWP_NOACTIVATE = 0x0010;
 
+        private int backgroundOpacityPct;
+        private System.Windows.Forms.Timer opacityTimer;
+        private int pendingOpacity;
+
         public Form2(string url, bool border, int zoom)
         {
             InitializeComponent();
+
+            this.DoubleBuffered = true;
+            this.Padding = Padding.Empty;
+            this.Margin = Padding.Empty;
+
             chatUrl = url;
             showBorder = border;
             zoomPct = zoom;
+            backgroundOpacityPct = Properties.Settings.Default.BGOpacity;
 
             Load += Form2_Load;
             FormClosing += Form2_FormClosing;
@@ -50,37 +59,52 @@ namespace Kick_Chat
             NetworkChange.NetworkAddressChanged += OnNetworkAddressChanged;
 
             connectionCheckTimer = new System.Windows.Forms.Timer();
-            connectionCheckTimer.Interval = 3000;
+            connectionCheckTimer.Interval = 1000;
             connectionCheckTimer.Tick += ConnectionCheckTimer_Tick;
             connectionCheckTimer.Start();
-        }
 
+            opacityTimer = new System.Windows.Forms.Timer();
+            opacityTimer.Interval = 16;
+            opacityTimer.Tick += (s, e) =>
+            {
+                opacityTimer.Stop();
+                if (webView21 != null && webView21.CoreWebView2 != null)
+                {
+                    double alpha = pendingOpacity / 100.0;
+                    _ = webView21.ExecuteScriptAsync($"document.body.style.setProperty('background-color','rgba(0,0,0,{alpha})','important');");
+                }
+            };
+        }
+        public void UpdateOpacity(int percentage)
+        {
+            backgroundOpacityPct = percentage;
+            pendingOpacity = percentage;
+
+            if (!opacityTimer.Enabled)
+            {
+                opacityTimer.Start();
+            }
+        }
         private async void ConnectionCheckTimer_Tick(object sender, EventArgs e)
         {
             if (isReconnecting) return;
-
             bool currentStatus = await CheckInternetAccess();
-
-            if (currentStatus && !lastConnectionStatus)
-            {
-                ReloadWebView();
-            }
-            else if (currentStatus && !webView21.Visible)
-            {
-                ReloadWebView();
-            }
-
+            if (currentStatus && !lastConnectionStatus) ReloadWebView();
+            else if (currentStatus && !webView21.Visible) ReloadWebView();
             lastConnectionStatus = currentStatus;
         }
-
         private async Task<bool> CheckInternetAccess()
         {
             try
             {
-                using (var client = new WebClient())
-                using (client.OpenRead("http://clients3.google.com/generate_204"))
+                using (var client = new System.Net.Sockets.TcpClient())
                 {
-                    return true;
+                    var task = client.ConnectAsync("1.1.1.1", 80);
+                    if (await Task.WhenAny(task, Task.Delay(1000)) == task)
+                    {
+                        return true;
+                    }
+                    return false;
                 }
             }
             catch
@@ -88,33 +112,28 @@ namespace Kick_Chat
                 return false;
             }
         }
-
         private async void OnNetworkAddressChanged(object sender, EventArgs e)
         {
             if (isReconnecting) return;
             isReconnecting = true;
-
-            await Task.Delay(1500);
+            await Task.Delay(100);
             ReloadWebView();
             isReconnecting = false;
         }
-
         private void ReloadWebView()
         {
             if (!this.IsDisposed && webView21 != null)
             {
-                this.BeginInvoke(new Action(() =>
-                {
-                    try { webView21.Reload(); } catch { }
-                }));
+                this.BeginInvoke(new Action(() => { try { webView21.Reload(); } catch { } }));
             }
         }
-
         private async void Form2_Load(object sender, EventArgs e)
         {
-            FormBorderStyle = showBorder ? FormBorderStyle.Sizable : FormBorderStyle.None;
-            BackColor = Color.Lime;
-            TransparencyKey = Color.Lime;
+            ApplyBorder(showBorder);
+
+            this.BackColor = Color.Lime;
+            this.TransparencyKey = Color.Lime;
+
             TopMost = true;
             ShowInTaskbar = false;
 
@@ -125,63 +144,84 @@ namespace Kick_Chat
                 firstLoad = false;
             }
 
-            int exStyle = GetWindowLong(this.Handle, GWL_EXSTYLE);
-            if (showBorder)
-                SetWindowLong(this.Handle, GWL_EXSTYLE, exStyle & ~WS_EX_TRANSPARENT);
-            else
-                SetWindowLong(this.Handle, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
+            SetWindowPos(this.Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
             isLoaded = true;
-            SetWindowPos(this.Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
             try
             {
                 if (webView21 != null && !webView21.IsDisposed)
                 {
-                    if (webView21.CoreWebView2 == null)
-                        await webView21.EnsureCoreWebView2Async();
-
-                    webView21.NavigationStarting += (s, args) => { webView21.Visible = false; };
+                    await webView21.EnsureCoreWebView2Async();
+                    webView21.DefaultBackgroundColor = Color.Transparent;
+                    webView21.Dock = DockStyle.Fill;
+                    webView21.Margin = Padding.Empty;
                     webView21.NavigationCompleted += WebView21_NavigationCompleted;
-
                     webView21.Source = new Uri(chatUrl);
                     webView21.ZoomFactor = zoomPct / 100.0;
                 }
             }
             catch { }
-        }
 
+            this.Padding = new Padding(0);
+            this.Invalidate();
+            this.Update();
+        }
         private async void WebView21_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
         {
-            if (webView21.IsDisposed) return;
-
-            if (!e.IsSuccess)
-            {
-                webView21.Visible = false;
-                lastConnectionStatus = false;
-                return;
-            }
+            if (webView21.IsDisposed || !e.IsSuccess) return;
 
             webView21.Visible = true;
             lastConnectionStatus = true;
 
             string fontFamily = Properties.Settings.Default.FontFamily;
-            string css = "";
-            if (!string.IsNullOrWhiteSpace(fontFamily) && fontFamily != "Basic")
-            {
-                css = $@"body, #chat-container, .chat_line, .user_info, .username, .message_content {{ font-family: '{fontFamily}', 'Segoe UI', Arial, sans-serif !important; font-weight: 400 !important; }}";
-            }
+
+            string fontStyle = !string.IsNullOrWhiteSpace(fontFamily) && fontFamily != "Basic"
+                ? $"font-family: '{fontFamily}', sans-serif !important; font-weight: 400 !important;"
+                : "";
+
+            double alpha = backgroundOpacityPct / 100.0;
+            string alphaStr = alpha.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
 
             string js = $@"
-                if (!window.reconnectHandlersSet) {{
-                    window.addEventListener('online', () => location.reload());
-                    window.reconnectHandlersSet = true;
+        (function() {{
+            let style = document.getElementById('chat-custom-style');
+            if (!style) {{
+                style = document.createElement('style');
+                style.id = 'chat-custom-style';
+                document.head.appendChild(style);
+            }}
+            style.innerHTML = `
+                body {{ 
+                    background-color: rgba(0,0,0,{alphaStr}) !important; 
+                    margin: 0 !important; 
+                    overflow: hidden !important; 
                 }}
-                {(string.IsNullOrEmpty(css) ? "" : $"let s = document.createElement('style'); s.innerHTML = `{css}`; document.head.appendChild(s);")}";
+                
+                /* Target only the elements that contain actual user text */
+                .message_content, 
+                .username, 
+                .chat_line span:not([class*='badge']):not([class*='icon']) {{ 
+                    {fontStyle}
+                    -webkit-font-smoothing: antialiased;
+                }}
+
+                /* Ensure badges keep their original size and layout */
+                .badge-container, .chat-badge, [class*='badge'] {{
+                    display: inline-block !important;
+                    vertical-align: middle !important;
+                }}
+            `;
+            
+            if (!window.reconnectHandlersSet) {{
+                window.addEventListener('online', () => location.reload());
+                window.reconnectHandlersSet = true;
+            }}
+        }})();
+    ";
 
             await webView21.ExecuteScriptAsync(js);
         }
-
         private void Form2_MoveResize(object sender, EventArgs e)
         {
             if (showBorder && isLoaded)
@@ -194,7 +234,6 @@ namespace Kick_Chat
                 SetWindowPos(this.Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
             }
         }
-
         private void Form2_FormClosing(object sender, FormClosingEventArgs e)
         {
             connectionCheckTimer?.Stop();
@@ -206,6 +245,73 @@ namespace Kick_Chat
             Properties.Settings.Default.Save();
         }
 
-        private void webView21_Click(object sender, EventArgs e) { }
+        public void ApplyZoom(int zoom)
+        {
+            zoomPct = zoom;
+
+            if (webView21 != null && !webView21.IsDisposed)
+            {
+                try
+                {
+                    webView21.ZoomFactor = zoomPct / 100.0;
+                }
+                catch { }
+            }
+        }
+        public void ApplyBorder(bool border)
+        {
+            showBorder = border;
+
+            if (!IsHandleCreated)
+                return;
+
+            Rectangle currentBounds = this.Bounds;
+
+            this.SuspendLayout();
+
+            if (border)
+            {
+                FormBorderStyle = FormBorderStyle.Sizable;
+                this.Padding = new Padding(0);
+            }
+            else
+            {
+                FormBorderStyle = FormBorderStyle.None;
+                this.Padding = new Padding(0);
+            }
+
+            this.Bounds = currentBounds;
+
+            int exStyle = GetWindowLong(this.Handle, GWL_EXSTYLE);
+            SetWindowLong(this.Handle, GWL_EXSTYLE, exStyle);
+
+            SetWindowPos(this.Handle, HWND_TOPMOST, 0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+
+            this.ResumeLayout();
+            this.Invalidate();
+            this.Update();
+        }
+
+        public void LoadChatUrl(string url)
+        {
+            chatUrl = url;
+
+            if (webView21 != null && !webView21.IsDisposed)
+            {
+                try
+                {
+                    if (webView21.Source != null && webView21.Source.ToString() == url)
+                    {
+                        webView21.Reload();
+                    }
+                    else
+                    {
+                        webView21.Source = new Uri(chatUrl);
+                    }
+                }
+                catch { }
+            }
+        }
     }
 }

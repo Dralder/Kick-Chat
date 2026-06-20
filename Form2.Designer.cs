@@ -44,13 +44,12 @@
             webView21.Size = new Size(428, 600);
             webView21.TabIndex = 0;
             webView21.ZoomFactor = 1D;
-            webView21.Click += webView21_Click;
             // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.Lime;
+            BackColor = Color.FromArgb(19, 19, 19);
             ClientSize = new Size(428, 600);
             Controls.Add(webView21);
             FormBorderStyle = FormBorderStyle.None;
@@ -59,7 +58,6 @@
             ShowInTaskbar = false;
             Text = "Chat Window";
             TopMost = true;
-            TransparencyKey = Color.Lime;
             ((System.ComponentModel.ISupportInitialize)webView21).EndInit();
             ResumeLayout(false);
         }
