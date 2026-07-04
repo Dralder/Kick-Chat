@@ -38,6 +38,9 @@ namespace Kick_Chat
         private System.Windows.Forms.Timer opacityTimer;
         private int pendingOpacity;
 
+        private int failedAttempts = 0;
+        private const int MaxFailedAttempts = 3;
+
         public Form2(string url, bool border, int zoom)
         {
             InitializeComponent();
@@ -89,22 +92,36 @@ namespace Kick_Chat
         {
             if (isReconnecting) return;
             bool currentStatus = await CheckInternetAccess();
-            if (currentStatus && !lastConnectionStatus) ReloadWebView();
-            else if (currentStatus && !webView21.Visible) ReloadWebView();
-            lastConnectionStatus = currentStatus;
+
+            if (currentStatus)
+            {
+                failedAttempts = 0;
+                if (!lastConnectionStatus || !webView21.Visible)
+                {
+                    ReloadWebView();
+                }
+                lastConnectionStatus = true;
+            }
+            else
+            {
+                failedAttempts++;
+                if (failedAttempts >= MaxFailedAttempts)
+                {
+                    lastConnectionStatus = false;
+                }
+            }
         }
         private async Task<bool> CheckInternetAccess()
         {
             try
             {
-                using (var client = new System.Net.Sockets.TcpClient())
+                using (var client = new System.Net.Http.HttpClient())
                 {
-                    var task = client.ConnectAsync("1.1.1.1", 80);
-                    if (await Task.WhenAny(task, Task.Delay(1000)) == task)
+                    client.Timeout = TimeSpan.FromSeconds(4);
+                    using (var response = await client.GetAsync("https://kick-chat.corard.tv/"))
                     {
-                        return true;
+                        return response.IsSuccessStatusCode;
                     }
-                    return false;
                 }
             }
             catch
