@@ -313,26 +313,30 @@ namespace Kick_Chat
             this.Invalidate();
             this.Update();
         }
-
-        public void LoadChatUrl(string url)
+        public async void LoadChatUrl(string url)
         {
             chatUrl = url;
 
-            if (webView21 != null && !webView21.IsDisposed)
+            if (webView21 == null || webView21.IsDisposed)
+                return;
+
+            try
             {
-                try
+                await webView21.EnsureCoreWebView2Async();
+
+                webView21.Stop();
+
+                if (webView21.Source == null ||
+                    !string.Equals(webView21.Source.AbsoluteUri, chatUrl, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (webView21.Source != null && webView21.Source.ToString() == url)
-                    {
-                        webView21.Reload();
-                    }
-                    else
-                    {
-                        webView21.Source = new Uri(chatUrl);
-                    }
+                    webView21.CoreWebView2.Navigate(chatUrl);
                 }
-                catch { }
+                else
+                {
+                    webView21.Reload();
+                }
             }
+            catch { }
         }
     }
 }

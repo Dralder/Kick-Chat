@@ -32,6 +32,8 @@
             label1 = new Label();
             txtUsername = new ReaLTaiizor.Controls.CrownTextBox();
             panel1 = new Panel();
+            txtcustom = new ReaLTaiizor.Controls.DreamTextBox();
+            chkCustom = new ReaLTaiizor.Controls.CyberCheckBox();
             sliderBackground = new ReaLTaiizor.Controls.ParrotSlider();
             label10 = new Label();
             twitchTB = new ReaLTaiizor.Controls.CrownTextBox();
@@ -110,6 +112,8 @@
             // 
             // panel1
             // 
+            panel1.Controls.Add(txtcustom);
+            panel1.Controls.Add(chkCustom);
             panel1.Controls.Add(sliderBackground);
             panel1.Controls.Add(label10);
             panel1.Controls.Add(twitchTB);
@@ -137,6 +141,62 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(817, 271);
             panel1.TabIndex = 56;
+            // 
+            // txtcustom
+            // 
+            txtcustom.BackColor = Color.FromArgb(41, 41, 41);
+            txtcustom.BorderStyle = BorderStyle.FixedSingle;
+            txtcustom.ColorA = Color.FromArgb(31, 31, 31);
+            txtcustom.ColorB = Color.FromArgb(41, 41, 41);
+            txtcustom.ColorC = Color.FromArgb(51, 51, 51);
+            txtcustom.ColorD = Color.FromArgb(0, 0, 0, 0);
+            txtcustom.ColorE = Color.FromArgb(25, 255, 255, 255);
+            txtcustom.ColorF = Color.Black;
+            txtcustom.Enabled = false;
+            txtcustom.ForeColor = Color.FromArgb(59, 181, 18);
+            txtcustom.Location = new Point(154, 212);
+            txtcustom.Name = "txtcustom";
+            txtcustom.Size = new Size(252, 23);
+            txtcustom.TabIndex = 79;
+            // 
+            // chkCustom
+            // 
+            chkCustom.BackColor = Color.Transparent;
+            chkCustom.Background = true;
+            chkCustom.Background_WidthPen = 2F;
+            chkCustom.BackgroundPen = true;
+            chkCustom.Checked = false;
+            chkCustom.ColorBackground = Color.FromArgb(24, 24, 24);
+            chkCustom.ColorBackground_1 = Color.FromArgb(46, 140, 18);
+            chkCustom.ColorBackground_2 = Color.FromArgb(46, 140, 18);
+            chkCustom.ColorBackground_Pen = Color.FromArgb(83, 253, 25);
+            chkCustom.ColorChecked = Color.FromArgb(83, 253, 25);
+            chkCustom.ColorPen_1 = Color.FromArgb(46, 140, 18);
+            chkCustom.ColorPen_2 = Color.FromArgb(46, 140, 18);
+            chkCustom.CyberCheckBoxStyle = ReaLTaiizor.Enum.Cyber.StateStyle.Custom;
+            chkCustom.Effect_1_ColorBackground = Color.FromArgb(46, 140, 18);
+            chkCustom.Effect_1_Transparency = 25;
+            chkCustom.Effect_2 = false;
+            chkCustom.Effect_2_ColorBackground = Color.White;
+            chkCustom.Effect_2_Transparency = 15;
+            chkCustom.Font = new Font("Lucida Sans Unicode", 9.75F, FontStyle.Bold);
+            chkCustom.ForeColor = Color.FromArgb(245, 245, 245);
+            chkCustom.LinearGradient_Background = false;
+            chkCustom.LinearGradientPen = false;
+            chkCustom.Location = new Point(7, 203);
+            chkCustom.Name = "chkCustom";
+            chkCustom.RGB = false;
+            chkCustom.Rounding = true;
+            chkCustom.RoundingInt = 25;
+            chkCustom.Size = new Size(401, 45);
+            chkCustom.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            chkCustom.TabIndex = 78;
+            chkCustom.Tag = "Cyber";
+            chkCustom.TextButton = "Custom URL";
+            chkCustom.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            chkCustom.Timer_Effect_1 = 1;
+            chkCustom.Timer_RGB = 300;
+            chkCustom.CheckedChanged += chkCustom_CheckedChanged;
             // 
             // sliderBackground
             // 
@@ -200,7 +260,7 @@
             // nudFade
             // 
             nudFade.Font = new Font("Segoe UI", 12F);
-            nudFade.Location = new Point(554, 183);
+            nudFade.Location = new Point(554, 159);
             nudFade.Maximum = new decimal(new int[] { 99999, 0, 0, 0 });
             nudFade.Name = "nudFade";
             nudFade.RightToLeft = RightToLeft.No;
@@ -211,7 +271,7 @@
             // nudZoom
             // 
             nudZoom.Font = new Font("Segoe UI", 12F);
-            nudZoom.Location = new Point(421, 183);
+            nudZoom.Location = new Point(421, 159);
             nudZoom.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
             nudZoom.Minimum = new decimal(new int[] { 10, 0, 0, 0 });
             nudZoom.Name = "nudZoom";
@@ -273,7 +333,7 @@
             cmbStroke.HoverFontColor = Color.White;
             cmbStroke.ItemHeight = 18;
             cmbStroke.Items.AddRange(new object[] { "Off", "Thin", "Medium", "Thick", "Thicker" });
-            cmbStroke.Location = new Point(287, 185);
+            cmbStroke.Location = new Point(287, 161);
             cmbStroke.Name = "cmbStroke";
             cmbStroke.Size = new Size(121, 24);
             cmbStroke.TabIndex = 69;
@@ -292,7 +352,7 @@
             cmbFontSize.HoverFontColor = Color.White;
             cmbFontSize.ItemHeight = 18;
             cmbFontSize.Items.AddRange(new object[] { "Small", "Medium", "Large" });
-            cmbFontSize.Location = new Point(154, 185);
+            cmbFontSize.Location = new Point(154, 161);
             cmbFontSize.Name = "cmbFontSize";
             cmbFontSize.Size = new Size(121, 24);
             cmbFontSize.TabIndex = 68;
@@ -426,7 +486,7 @@
             cmbFontFamily.HoverFontColor = Color.White;
             cmbFontFamily.ItemHeight = 18;
             cmbFontFamily.Items.AddRange(new object[] { "Basic", "Arial", "Calibri", "Cambria", "Candara", "Consolas", "Corbel", "Century Gothic", "Franklin Gothic Heavy", "Franklin Gothic Medium", "Impact", "Lucida Sans Unicode", "Segoe UI", "Segoe UI Semibold", "Tahoma", "Trebuchet MS", "Verdana" });
-            cmbFontFamily.Location = new Point(20, 185);
+            cmbFontFamily.Location = new Point(20, 161);
             cmbFontFamily.MaxDropDownItems = 10;
             cmbFontFamily.Name = "cmbFontFamily";
             cmbFontFamily.Size = new Size(121, 24);
@@ -501,7 +561,7 @@
             label7.BackColor = Color.Transparent;
             label7.Font = new Font("MV Boli", 12F);
             label7.ForeColor = Color.WhiteSmoke;
-            label7.Location = new Point(20, 151);
+            label7.Location = new Point(20, 127);
             label7.Name = "label7";
             label7.Size = new Size(121, 26);
             label7.TabIndex = 61;
@@ -514,7 +574,7 @@
             fontlable.BackColor = Color.Transparent;
             fontlable.Font = new Font("Lucida Sans Unicode", 9.75F, FontStyle.Bold);
             fontlable.ForeColor = Color.WhiteSmoke;
-            fontlable.Location = new Point(154, 161);
+            fontlable.Location = new Point(154, 137);
             fontlable.Name = "fontlable";
             fontlable.Size = new Size(73, 16);
             fontlable.TabIndex = 60;
@@ -526,7 +586,7 @@
             label6.BackColor = Color.Transparent;
             label6.Font = new Font("Lucida Sans Unicode", 9.75F, FontStyle.Bold);
             label6.ForeColor = Color.WhiteSmoke;
-            label6.Location = new Point(287, 161);
+            label6.Location = new Point(287, 137);
             label6.Name = "label6";
             label6.Size = new Size(53, 16);
             label6.TabIndex = 59;
@@ -537,7 +597,7 @@
             label5.AutoSize = true;
             label5.Font = new Font("Lucida Sans Unicode", 9.75F, FontStyle.Bold);
             label5.ForeColor = Color.WhiteSmoke;
-            label5.Location = new Point(557, 161);
+            label5.Location = new Point(557, 137);
             label5.Name = "label5";
             label5.Size = new Size(114, 16);
             label5.TabIndex = 58;
@@ -548,7 +608,7 @@
             label2.AutoSize = true;
             label2.Font = new Font("Lucida Sans Unicode", 9.75F, FontStyle.Bold);
             label2.ForeColor = Color.WhiteSmoke;
-            label2.Location = new Point(452, 161);
+            label2.Location = new Point(452, 137);
             label2.Name = "label2";
             label2.Size = new Size(47, 16);
             label2.TabIndex = 56;
@@ -1035,8 +1095,8 @@
             ClientSize = new Size(826, 284);
             Controls.Add(label3);
             Controls.Add(btnpanel);
-            Controls.Add(panel2);
             Controls.Add(panel1);
+            Controls.Add(panel2);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
@@ -1105,5 +1165,7 @@
         private ReaLTaiizor.Controls.CrownTextBox twitchTB;
         private ReaLTaiizor.Controls.CyberCheckBox twitchCheckBox;
         private Label label10;
+        private ReaLTaiizor.Controls.CyberCheckBox chkCustom;
+        private ReaLTaiizor.Controls.DreamTextBox txtcustom;
     }
 }

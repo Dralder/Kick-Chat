@@ -32,6 +32,8 @@ namespace Kick_Chat
             obsTimer.Interval = 3000;
             obsTimer.Tick += async (s, e) => await CheckObsStatusAsync();
             obsTimer.Start();
+
+            txtcustom.TextChanged += txtcustom_TextChanged;
         }
         private bool isInitializingStatus = true;
         private bool obsLastTriggered = false;
@@ -107,8 +109,11 @@ namespace Kick_Chat
             public string OBShost { get; set; }
             public string OBSport { get; set; }
             public string OBSpassword { get; set; }
+            public bool CustomCheck { get; set; }
+            public string CustomURL { get; set; }
             public string ChatBoxBounds { get; set; }
             public string MainWindowBounds { get; set; }
+
         }
         private void LoadConfigFile()
         {
@@ -152,6 +157,9 @@ namespace Kick_Chat
             Properties.Settings.Default.TwitchEnabled = config.TwitchEnabled;
             Properties.Settings.Default.TwitchUser = config.TwitchUser;
 
+            Properties.Settings.Default.CustomCheck = config.CustomCheck;
+            Properties.Settings.Default.CustomURL = config.CustomURL;
+
             Properties.Settings.Default.ChatBoxBounds = config.ChatBoxBounds;
             Properties.Settings.Default.MainWindowBounds = config.MainWindowBounds;
 
@@ -189,6 +197,9 @@ namespace Kick_Chat
 
                 TwitchEnabled = twitchCheckBox.Checked,
                 TwitchUser = twitchTB.Text.Trim(),
+
+                CustomCheck = chkCustom.Checked,
+                CustomURL = txtcustom.Text.Trim(),
 
                 ChatBoxBounds = chatForm != null && !chatForm.IsDisposed
                     ? $"{chatForm.Location.X},{chatForm.Location.Y},{chatForm.Width},{chatForm.Height}"
@@ -241,6 +252,10 @@ namespace Kick_Chat
 
             twitchCheckBox.Checked = Properties.Settings.Default.TwitchEnabled;
             twitchTB.Text = Properties.Settings.Default.TwitchUser;
+
+            chkCustom.Checked = Properties.Settings.Default.CustomCheck;
+            txtcustom.Text = Properties.Settings.Default.CustomURL;
+            txtcustom.Enabled = chkCustom.Checked;
 
             string selectedFont = Properties.Settings.Default.FontFamily ?? "Basic";
             if (selectedFont == "Basic")
@@ -355,14 +370,29 @@ namespace Kick_Chat
 
         private string BuildChatUrl()
         {
+            if (chkCustom.Checked)
+            {
+                string custom = txtcustom.Text.Trim();
+
+                if (!string.IsNullOrWhiteSpace(custom))
+                {
+                    if (!custom.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
+                        !custom.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                    {
+                        custom = "https://" + custom;
+                    }
+
+                    return custom;
+                }
+            }
+
             string url = "https://kick-chat.corard.tv/v1/chat?";
+
             if (!string.IsNullOrWhiteSpace(txtUsername.Text))
                 url += "user=" + txtUsername.Text;
 
             if (twitchCheckBox.Checked && !string.IsNullOrWhiteSpace(twitchTB.Text))
-            {
                 url += "&twitchuser=" + twitchTB.Text.Trim();
-            }
 
             url += "&font-size=" + (cmbFontSize.SelectedItem?.ToString() ?? "Medium") +
                    "&stroke=" + (cmbStroke.SelectedItem?.ToString() ?? "Off") +
@@ -792,6 +822,9 @@ namespace Kick_Chat
             Properties.Settings.Default.TwitchEnabled = twitchCheckBox.Checked;
             Properties.Settings.Default.TwitchUser = twitchTB.Text;
 
+            Properties.Settings.Default.CustomCheck = chkCustom.Checked;
+            Properties.Settings.Default.CustomURL = txtcustom.Text.Trim();
+
             if (chatForm != null && !chatForm.IsDisposed)
             {
                 Properties.Settings.Default.ChatBoxBounds = $"{chatForm.Location.X},{chatForm.Location.Y},{chatForm.Width},{chatForm.Height}";
@@ -811,6 +844,31 @@ namespace Kick_Chat
         private void twitchCheckBox_CheckedChanged()
         {
             twitchTB.Enabled = twitchCheckBox.Checked;
+        }
+
+        private void chkCustom_CheckedChanged()
+        {
+            txtcustom.Enabled = chkCustom.Checked;
+
+            Properties.Settings.Default.CustomCheck = chkCustom.Checked;
+            Properties.Settings.Default.Save();
+
+            if (isInitializing)
+                return;
+
+            if (chatForm != null && !chatForm.IsDisposed)
+                chatForm.LoadChatUrl(BuildChatUrl());
+        }
+        private void txtcustom_TextChanged(object sender, EventArgs e)
+        {
+            if (isInitializing)
+                return;
+
+            Properties.Settings.Default.CustomURL = txtcustom.Text.Trim();
+            Properties.Settings.Default.Save();
+
+            if (chkCustom.Checked && chatForm != null && !chatForm.IsDisposed)
+                chatForm.LoadChatUrl(BuildChatUrl());
         }
     }
 }
